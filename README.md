@@ -1,5 +1,7 @@
 # @commonkads/provider-openai
 
+> **Disclaimer:** This project is an independent open-source software implementation inspired by the CommonKADS knowledge engineering methodology (Schreiber et al.). It is not affiliated with or endorsed by the original methodology authors or any third-party trademark holders.
+
 OpenAI-compatible provider implementation for the [CommonKADS engine](https://github.com/commonkads/engine). Supports OpenAI, Groq, Mistral, Together AI, and any OpenAI-compatible endpoint.
 
 ## Provided implementations
