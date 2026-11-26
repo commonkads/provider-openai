@@ -1,5 +1,8 @@
-import { describe, it, mock } from "node:test";
+import { describe, it, mock, before, after } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 import OpenAI from "openai";
 
@@ -16,6 +19,16 @@ function makeClient(content: string): OpenAI {
     },
   } as unknown as OpenAI;
 }
+
+let dir: string;
+
+before(() => {
+  dir = mkdtempSync(join(tmpdir(), "ck-openai-test-"));
+});
+
+after(() => {
+  rmSync(dir, { recursive: true, force: true });
+});
 
 describe("OpenAITextInference", () => {
   it("returns the content from the first choice", async () => {
@@ -130,5 +143,67 @@ describe("OpenAITextInference", () => {
     const result = await inference.infer("prompt");
 
     assert.strictEqual(result, "");
+  });
+});
+
+describe("OpenAITextInference config resolution", () => {
+  it("resolves modelId from explicit arg", () => {
+    assert.doesNotThrow(
+      () => new OpenAITextInference("gpt-4o", { client: makeClient("ok") }),
+    );
+  });
+
+  it("resolves modelId from config file", () => {
+    const cfg = join(dir, "openai.yml");
+    writeFileSync(cfg, "modelId: gpt-4o\n");
+    assert.doesNotThrow(
+      () =>
+        new OpenAITextInference(undefined, {
+          configFile: cfg,
+          client: makeClient("ok"),
+        }),
+    );
+  });
+
+  it("throws when modelId is absent and config file has no model", () => {
+    const cfg = join(dir, "no-model.yml");
+    writeFileSync(cfg, "apiKey: sk-test\n");
+    assert.throws(
+      () =>
+        new OpenAITextInference(undefined, {
+          configFile: cfg,
+          client: makeClient("ok"),
+        }),
+      /modelId is required/,
+    );
+  });
+
+  it("throws when explicit configFile is not found", () => {
+    assert.throws(
+      () =>
+        new OpenAITextInference(undefined, {
+          configFile: join(dir, "ghost.yml"),
+        }),
+      /Config file not found/,
+    );
+  });
+
+  it("env var OPENAI_API_KEY takes priority over config file", () => {
+    const cfg = join(dir, "envvar.yml");
+    writeFileSync(cfg, "modelId: gpt-4o\napiKey: from-file\n");
+    const prev = process.env["OPENAI_API_KEY"];
+    process.env["OPENAI_API_KEY"] = "from-env";
+    try {
+      assert.doesNotThrow(
+        () =>
+          new OpenAITextInference(undefined, {
+            configFile: cfg,
+            client: makeClient("ok"),
+          }),
+      );
+    } finally {
+      if (prev === undefined) delete process.env["OPENAI_API_KEY"];
+      else process.env["OPENAI_API_KEY"] = prev;
+    }
   });
 });
