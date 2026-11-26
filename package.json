@@ -1,6 +1,6 @@
 {
   "name": "@commonkads/provider-openai",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "OpenAI-compatible provider implementation for the CommonKADS engine (OpenAI, Groq, Mistral, etc.)",
   "type": "module",
   "author": "Rob Proper",
@@ -31,7 +31,7 @@
     "release": "npm publish"
   },
   "dependencies": {
-    "@commonkads/engine": "^0.1.0",
+    "@commonkads/engine": "^0.2.0",
     "openai": "^4.0.0"
   },
   "devDependencies": {

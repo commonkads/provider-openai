@@ -6,7 +6,7 @@ export type { OpenAITextInferenceOptions } from "./openai.js";
 
 export interface OpenAIProviderOptions {
   type: "openai";
-  model: string;
+  model?: string;
   apiKey?: string;
   baseURL?: string;
   maxTokens?: number;
