@@ -2,7 +2,7 @@ import OpenAI from "openai";
 
 import type {
   InferenceOptions,
-  IInferenceProvider,
+  InferenceProvider,
   ProviderFileConfig,
 } from "@commonkads/engine";
 import {
@@ -26,8 +26,8 @@ export interface OpenAITextInferenceOptions {
   client?: OpenAI;
 }
 
-/** `IInferenceProvider` backed by any OpenAI-compatible chat completions API. */
-export class OpenAITextInference implements IInferenceProvider {
+/** `InferenceProvider` backed by any OpenAI-compatible chat completions API. */
+export class OpenAITextInference implements InferenceProvider {
   private readonly client: OpenAI;
   private readonly modelId: string;
 
